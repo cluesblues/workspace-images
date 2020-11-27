@@ -275,6 +275,21 @@ ENV PATH=$PATH:$HOME/.cargo/bin
 
 RUN bash -lc "cargo install cargo-watch cargo-edit cargo-tree"
 
+### Docker ###
+LABEL dazzle/layer=docker
+LABEL dazzle/test=tests/tool-docker.yaml
+USER root
+# https://docs.docker.com/engine/install/ubuntu/
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
+    && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+    && apt-get update \
+    && apt-get install -y docker-ce docker-ce-cli containerd.io slirp4netns \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+# https://github.com/wagoodman/dive
+RUN curl -o /tmp/dive.deb -L https://github.com/wagoodman/dive/releases/download/v0.9.2/dive_0.9.2_linux_amd64.deb \
+    && apt install /tmp/dive.deb \
+    && rm /tmp/dive.deb
+
 ### Prologue (built across all layers) ###
 LABEL dazzle/layer=dazzle-prologue
 LABEL dazzle/test=tests/prologue.yaml
